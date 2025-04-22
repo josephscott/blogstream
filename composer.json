@@ -8,5 +8,11 @@
             "email": "joseph@josephscott.org"
         }
     ],
-    "require": {}
+    "require": {
+		"php": ">=8.3"
+	},
+	"config": {
+		"classmap-authoritative": true,
+		"optimize-autoloader": true,
+		"allow-plugins": false
 }
