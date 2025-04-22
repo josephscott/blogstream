@@ -1,0 +1,12 @@
+{
+    "name": "josephscott/blogstream",
+    "description": "SSE pings from blo.gs",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joseph Scott",
+            "email": "joseph@josephscott.org"
+        }
+    ],
+    "require": {}
+}
