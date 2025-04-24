@@ -12,3 +12,15 @@ $worker->count = 4;
 $worker->clients = [];
 $worker->blogs_connection = null;
 $worker->buffer = '';
+
+// CORS headers
+function add_cors_headers( array $headers = [] ): array {
+	$headers = array_merge( [
+		'Access-Control-Allow-Origin' => '*',
+		'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+		'Access-Control-Allow-Headers' => 'Content-Type, Accept',
+		'Access-Control-Max-Age' => '86400',
+	], $headers );
+
+	return $headers;
+}
