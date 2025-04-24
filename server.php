@@ -6,7 +6,7 @@ use Workerman\Worker;
 require_once __DIR__ . '/vendor/autoload.php';
 
 $worker = new Worker( 'http://0.0.0.0:39999' );
-$worker->count = 4;
+$worker->count = 1;
 
 // Track shared state
 $worker->clients = [];
@@ -24,3 +24,7 @@ function add_cors_headers( array $headers = [] ): array {
 
 	return $headers;
 }
+
+$worker->onWorkerStart = function ( $worker ) {
+
+};
