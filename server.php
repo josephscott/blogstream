@@ -33,12 +33,14 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 	// Data from ping.blo.gs
 	$worker->blogs_connection->onMessage = function(
 		AsyncTcpConnection $connection,
-		$data
+		string $data
 	) use ( $worker ) {
 		$worker->buffer .= $data;
 
-		// We need a complete line
-		while ( ( $pos = strpos( $worker->buffer, "\n" ) ) !== false ) {
-		}
-	}
+		error_log( "\n\n--\n$worker->buffer\n--\n\n" );
+	};
+
+	$worker->blogs_connection->connect();
 };
+
+Worker::runAll();
