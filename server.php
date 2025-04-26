@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Worker;
+use Workerman\Protocols\Http\ServerSentEvents;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -59,12 +60,15 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 				continue;
 			}
 
-			error_log( "\n\n--\n$json\n--\n\n" );
-
 			// Skip if no clients to receive updates
 			if ( empty( $worker->clients ) ) {
 				continue;
 			}
+
+			$event = new ServerSentEvents( [
+				'event' => 'ping',
+				'data' => $json
+			] );
 
 			// Send the update to all clients
 			foreach ( $worker->clients as $client ) {
