@@ -89,4 +89,11 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 	$worker->blogs_connection->connect();
 };
 
+$worker->onWorkerStop = function($worker) {
+	// Clean up resources
+	if ( $worker->blogs_connection ) {
+		$worker->blogs_connection->close();
+	}
+};
+
 Worker::runAll();
