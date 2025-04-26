@@ -50,12 +50,16 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 			}
 
 			// Parse the XML
-			$xml = simplexml_load_string( $line );
-			if ( $xml === false ) {
+			//
+			// I tried simplexml_load_string originally, but it ran into
+			// encoding issues.
+			$parsed_xml = preg_match_all('/(\w+)="([^"]*)"/', $line, $matches);
+			if ( $parsed_xml === false ) {
 				continue;
 			}
+			$ping = array_combine( $matches[1], $matches[2] );
 
-			$json = json_encode( $xml );
+			$json = json_encode( $ping );
 			if ( $json === false ) {
 				continue;
 			}
