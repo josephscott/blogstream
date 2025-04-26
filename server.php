@@ -1,7 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
+use Workerman\Connection\TcpConnection;
 use Workerman\Connection\AsyncTcpConnection;
+use Workerman\Protocols\Http\Request;
 use Workerman\Worker;
 use Workerman\Protocols\Http\ServerSentEvents;
 
@@ -93,6 +95,38 @@ $worker->onWorkerStop = function($worker) {
 	// Clean up resources
 	if ( $worker->blogs_connection ) {
 		$worker->blogs_connection->close();
+	}
+};
+
+// Client connections
+$worker->onMessage = function(
+	TcpConnection $connection,
+	Request $request
+) use ( $worker ) {
+	// Handle OPTIONS preflight request for CORS
+	if ($request->method() === 'OPTIONS') {
+		$connection->send( new Response(
+			204,
+			add_cors_headers()
+		) );
+		return;
+	}
+
+	// SSE client requests
+	if ( $request->header( 'accept') === 'text/event-stream' ) {
+		// Send initial SSE response
+		$connection->send( new Response(
+			200,
+			add_cors_headers( [
+				'Content-Type' => 'text/event-stream',
+				'Cache-Control' => 'no-cache',
+				'X-Accel-Buffering' => 'no'
+			] ),
+			"\r\n"
+		) );
+
+		// Add to the list of clients
+		$worker->clients[ $connection->id ] = $connection;
 	}
 };
 
