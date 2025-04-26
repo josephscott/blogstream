@@ -42,9 +42,35 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 			$line = substr( $worker->buffer, 0, $pos );
 			$worker->buffer = substr( $worker->buffer, $pos + 1 );
 
-			error_log( "\n\n--\n$line\n--\n\n" );
+			// Skip the XML headers
+			// http://blo.gs/cloud.php
+			if ( ! str_starts_with( $line, '<weblog ' ) ) {
+				continue;
+			}
+
+			// Parse the XML
+			$xml = simplexml_load_string( $line );
+			if ( $xml === false ) {
+				continue;
+			}
+
+			$json = json_encode( $xml );
+			if ( $json === false ) {
+				continue;
+			}
+
+			error_log( "\n\n--\n$json\n--\n\n" );
+
+			// Skip if no clients to receive updates
+			if ( empty( $worker->clients ) ) {
+				continue;
+			}
+
+			// Send the update to all clients
+			foreach ( $worker->clients as $client ) {
+				$client->send( $json );
+			}
 		}
-#		error_log( "\n\n--\n$worker->buffer\n--\n\n" );
 	};
 
 	$worker->blogs_connection->connect();
