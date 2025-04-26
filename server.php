@@ -37,7 +37,14 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 	) use ( $worker ) {
 		$worker->buffer .= $data;
 
-		error_log( "\n\n--\n$worker->buffer\n--\n\n" );
+		// We need one line at a time
+		while ( ( $pos = strpos( $worker->buffer, "\n" ) ) !== false ) {
+			$line = substr( $worker->buffer, 0, $pos );
+			$worker->buffer = substr( $worker->buffer, $pos + 1 );
+
+			error_log( "\n\n--\n$line\n--\n\n" );
+		}
+#		error_log( "\n\n--\n$worker->buffer\n--\n\n" );
 	};
 
 	$worker->blogs_connection->connect();
