@@ -70,9 +70,14 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 				'data' => $json
 			] );
 
-			// Send the update to all clients
+			// Send the update to all clients that are still connected
 			foreach ( $worker->clients as $client ) {
-				$client->send( $json );
+				if ( $client->getStatus() === TcpConnection::STATUS_ESTABLISHED ) {
+					$client->send( $event );
+				} else {
+					// Remove disconnected clients
+					unset( $worker->clients[ $client->id ] );
+				}
 			}
 		}
 	};
