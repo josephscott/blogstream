@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 use Workerman\Connection\TcpConnection;
 use Workerman\Connection\AsyncTcpConnection;
 use Workerman\Protocols\Http\Request;
+use Workerman\Protocols\Http\Response;
 use Workerman\Worker;
 use Workerman\Protocols\Http\ServerSentEvents;
 
@@ -113,7 +114,10 @@ $worker->onMessage = function(
 	}
 
 	// SSE client requests
-	if ( $request->header( 'accept') === 'text/event-stream' ) {
+	if (
+		( $request->path() === '/sse' || $request->path() === '/sse/' )
+		&& $request->header( 'accept') === 'text/event-stream'
+	) {
 		// Send initial SSE response
 		$connection->send( new Response(
 			200,
@@ -127,6 +131,17 @@ $worker->onMessage = function(
 
 		// Add to the list of clients
 		$worker->clients[ $connection->id ] = $connection;
+
+		// Initial heartbeat to establish the connection
+		$connection->send( ": connected\n\n" );
+
+		// Handle client disconnect
+		$connection->onClose = function() use ($connection, $worker) {
+			// Remove client from the list
+			unset($worker->clients[$connection->id]);
+		};
+
+		return;
 	}
 };
 
