@@ -5,4 +5,5 @@ This takes the XML blog ping flow from <a href="http://blo.gs/">http://blo.gs/</
 ## Usage
 
 Start the server: `php server.php start -d`
+
 View the JSON SSE: `curl -H 'Accept: text/event-stream' -N http://localhost:39999/sse`
