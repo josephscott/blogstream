@@ -143,6 +143,31 @@ $worker->onMessage = function(
 
 		return;
 	}
+
+	// Basic web page to demo the SSE stream
+	if ( $request->path() === '/' ) {
+		$connection->send( new Response(
+			200,
+			add_cors_headers( [
+				'Content-Type' => 'text/html; charset=utf-8',
+			] ),
+			<<< HTML
+			<html>
+				<head>
+					<title>SSE Demo</title>
+				</head>
+				<body>
+					<h1>SSE Demo</h1>
+					<p>Open the browser console to see the SSE stream.</p>
+					<script>
+						const eventSource = new EventSource('/sse');
+					</script>
+				</body>
+			</html>
+HTML
+		) );
+
+	}
 };
 
 Worker::runAll();
