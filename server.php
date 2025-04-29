@@ -162,26 +162,30 @@ $worker->onMessage = function(
 							margin: 0 auto;
 							padding: 20px;
 							line-height: 1.5;
+							height: 100vh;
+							display: flex;
+							flex-direction: column;
+							overflow: hidden;
 						}
 						#ping_container {
 							border: 1px solid #ddd;
 							border-radius: 4px;
 							padding: 15px;
-							margin: 20px 0;
-							height: 70vh;
+							margin: 10px 0;
+							flex: 1;
 							overflow-y: auto;
 							background-color: #f8f8f8;
+							min-height: 0;
 						}
 						.ping_item {
 							border-bottom: 2px solid #ddd;
-							padding: 12px 0;
-							margin-bottom: 10px;
 						}
 						.ping_item:last-child {
 							border-bottom: none;
 						}
 						.controls {
 							display: flex;
+							align-items: center;
 							gap: 10px;
 							margin-bottom: 15px;
 						}
@@ -202,9 +206,20 @@ $worker->onMessage = function(
 							cursor: not-allowed;
 						}
 						#connection_status {
-							font-weight: bold;
-							padding: 8px 0;
-							margin: 10px 0;
+							display: inline-block;
+							width: 12px;
+							height: 12px;
+							border-radius: 50%;
+							background-color: #cc0000;
+							margin-right: 8px;
+							vertical-align: middle;
+							transition: background-color 0.3s ease;
+						}
+						#connection_status.connected {
+							background-color: #22cc22;
+						}
+						#connection_status.connecting {
+							background-color: #ffaa00;
 						}
 						.warning {
 							background-color: #fff3cd;
@@ -236,17 +251,16 @@ $worker->onMessage = function(
 					</style>
 				</head>
 				<body>
-					<h1>SSE Demo</h1>
-					<p>Real-time blog updates from <a href="http://blo.gs/">blo.gs</a></p>
+					<h1>Real-time blog updates from <a href="http://blo.gs/">blo.gs</a></h1>
 					<div class="warning">
 						<p>⚠️ Warning: This ping stream contains a significant amount of spam content. The data is unfiltered and comes directly from ping.blo.gs.</p>
 					</div>
 					<div class="controls">
+						<span id="connection_status" title="Disconnected"></span>
 						<button id="connect_button">Connect Stream</button>
 						<button id="disconnect_button" disabled>Disconnect Stream</button>
 						<button id="clear_button">Clear Pings</button>
 					</div>
-					<p id="connection_status">Stream disconnected</p>
 					<div id="ping_container">
 						<div id="ping_list"></div>
 					</div>
@@ -268,11 +282,13 @@ $worker->onMessage = function(
 							}
 							
 							event_source = new EventSource('/sse');
-							connection_status.textContent = 'Connecting...';
+							connection_status.className = 'connecting';
+							connection_status.title = 'Connecting...';
 							
 							// Handle connection open
 							event_source.onopen = function() {
-								connection_status.textContent = 'Connected to stream';
+								connection_status.className = 'connected';
+								connection_status.title = 'Connected';
 								connect_button.disabled = true;
 								disconnect_button.disabled = false;
 							};
@@ -291,7 +307,10 @@ $worker->onMessage = function(
 							
 							// Handle errors
 							event_source.onerror = function() {
-								connection_status.textContent = 'Connection error, reconnecting...';
+								connection_status.className = '';
+								connection_status.title = 'Disconnected';
+								connect_button.disabled = false;
+								disconnect_button.disabled = true;
 							};
 						}
 						
@@ -300,7 +319,8 @@ $worker->onMessage = function(
 							if (event_source) {
 								event_source.close();
 								event_source = null;
-								connection_status.textContent = 'Stream disconnected';
+								connection_status.className = '';
+								connection_status.title = 'Disconnected';
 								connect_button.disabled = false;
 								disconnect_button.disabled = true;
 							}
