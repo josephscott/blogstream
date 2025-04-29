@@ -391,6 +391,15 @@ HTML
 		) );
 
 	}
+
+	// If we are still here, the request is not valid
+	$connection->send( new Response(
+		404,
+		add_cors_headers( [
+			'Content-Type' => 'text/plain; charset=utf-8',
+		] ),
+		'Not found'
+	) );
 };
 
 Worker::runAll();
