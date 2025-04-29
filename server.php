@@ -7,6 +7,7 @@ use Workerman\Protocols\Http\Request;
 use Workerman\Protocols\Http\Response;
 use Workerman\Worker;
 use Workerman\Protocols\Http\ServerSentEvents;
+use Workerman\Timer;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -100,6 +101,17 @@ $worker->onWorkerStart = function ( Worker $worker ) {
         Timer::add( 5, function() use ( $connection ) {
 			$connection->reconnect();
 		}, [], false);
+	};
+
+	$worker->blogs_connection->onClose = function(
+		AsyncTcpConnection $connection
+	) use ( $worker ) {
+		echo "Connection to ping.blo.gs closed, trying to reconnect...\n";
+
+		// Try to reconnect after 5 seconds
+		Timer::add( 5, function() use ( $connection ) {
+			$connection->reconnect();
+		}, [], false );
 	};
 
 	$worker->blogs_connection->connect();
