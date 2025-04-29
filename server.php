@@ -89,6 +89,19 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 		}
 	};
 
+	$worker->blogs_connection->onError = function(
+		AsyncTcpConnection $connection,
+		int $code,
+		string $msg
+	) use ( $worker ) {
+		echo "Error connecting to ping.blo.gs: $code $msg\n";
+
+		// Try to reconnect after 5 seconds
+        Timer::add( 5, function() use ( $connection ) {
+			$connection->reconnect();
+		}, [], false);
+	};
+
 	$worker->blogs_connection->connect();
 };
 
