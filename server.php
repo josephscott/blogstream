@@ -167,7 +167,8 @@ $worker->onMessage = function(
 			<<< HTML
 			<html>
 				<head>
-					<title>SSE Demo</title>
+					<title>Blogstream: Real-time blog updates from blo.gs</title>
+					<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iIzAwNjZjYyIgZD0iTTYsMTlhMywzIDAgMCwxIDAtNkgxOGEzLDMgMCAwLDEgMCw2SDZ6TTYsOGEzLDMgMCAwLDEgMC02SDE4YTMsMyAwIDAsNTogMC02SDZ6TTYsMTVhMiwyIDAgMSwxIDAsNEEyLDIgMCAwLDEgNiwxNXoiLz48L3N2Zz4=" type="image/svg+xml">
 					<style>
 						body {
 							font-family: system-ui, -apple-system, sans-serif;
