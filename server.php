@@ -115,6 +115,26 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 	};
 
 	$worker->blogs_connection->connect();
+
+	// Set up a heartbeat timer for connected clients
+	Timer::add( 30, function() use ( $worker ) {
+		if ( empty( $worker->clients ) ) {
+			return; // No clients, no need to send heartbeats
+		}
+
+		$heartbeat = new ServerSentEvents( [
+			'event' => 'heartbeat',
+			'data' => '{}'
+		] );
+
+		foreach ( $worker->clients as $client_id => $client ) {
+			if ( $client->getStatus() === TcpConnection::STATUS_ESTABLISHED ) {
+				$client->send( $heartbeat );
+			} else {
+				unset( $worker->clients[ $client_id ] );
+			}
+		}
+	} );
 };
 
 $worker->onWorkerStop = function($worker) {
