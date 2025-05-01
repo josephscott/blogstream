@@ -1,13 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
-use Workerman\Connection\TcpConnection;
 use Workerman\Connection\AsyncTcpConnection;
+use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request;
 use Workerman\Protocols\Http\Response;
-use Workerman\Worker;
 use Workerman\Protocols\Http\ServerSentEvents;
 use Workerman\Timer;
+use Workerman\Worker;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -36,7 +36,7 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 	$worker->blogs_connection = new AsyncTcpConnection( 'tcp://ping.blo.gs:29999' );
 
 	// Data from ping.blo.gs
-	$worker->blogs_connection->onMessage = function(
+	$worker->blogs_connection->onMessage = function (
 		AsyncTcpConnection $connection,
 		string $data
 	) use ( $worker ) {
@@ -57,7 +57,7 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 			//
 			// I tried simplexml_load_string originally, but it ran into
 			// encoding issues.
-			$parsed_xml = preg_match_all('/(\w+)="([^"]*)"/', $line, $matches);
+			$parsed_xml = preg_match_all( '/(\w+)="([^"]*)"/', $line, $matches );
 			if ( $parsed_xml === false ) {
 				continue;
 			}
@@ -75,7 +75,7 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 
 			$event = new ServerSentEvents( [
 				'event' => 'ping',
-				'data' => $json
+				'data' => $json,
 			] );
 
 			// Send the update to all clients that are still connected
@@ -84,13 +84,13 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 					$client->send( $event );
 				} else {
 					// Remove disconnected clients
-					unset( $worker->clients[ $client->id ] );
+					unset( $worker->clients[$client->id] );
 				}
 			}
 		}
 	};
 
-	$worker->blogs_connection->onError = function(
+	$worker->blogs_connection->onError = function (
 		AsyncTcpConnection $connection,
 		int $code,
 		string $msg
@@ -98,18 +98,18 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 		echo "Error connecting to ping.blo.gs: $code $msg\n";
 
 		// Try to reconnect after 5 seconds
-        Timer::add( 5, function() use ( $connection ) {
+		Timer::add( 5, function () use ( $connection ) {
 			$connection->reconnect();
-		}, [], false);
+		}, [], false );
 	};
 
-	$worker->blogs_connection->onClose = function(
+	$worker->blogs_connection->onClose = function (
 		AsyncTcpConnection $connection
 	) use ( $worker ) {
 		echo "Connection to ping.blo.gs closed, trying to reconnect...\n";
 
 		// Try to reconnect after 5 seconds
-		Timer::add( 5, function() use ( $connection ) {
+		Timer::add( 5, function () use ( $connection ) {
 			$connection->reconnect();
 		}, [], false );
 	};
@@ -117,27 +117,27 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 	$worker->blogs_connection->connect();
 
 	// Set up a heartbeat timer for connected clients
-	Timer::add( 30, function() use ( $worker ) {
+	Timer::add( 30, function () use ( $worker ) {
 		if ( empty( $worker->clients ) ) {
 			return; // No clients, no need to send heartbeats
 		}
 
 		$heartbeat = new ServerSentEvents( [
 			'event' => 'heartbeat',
-			'data' => '{}'
+			'data' => '{}',
 		] );
 
 		foreach ( $worker->clients as $client_id => $client ) {
 			if ( $client->getStatus() === TcpConnection::STATUS_ESTABLISHED ) {
 				$client->send( $heartbeat );
 			} else {
-				unset( $worker->clients[ $client_id ] );
+				unset( $worker->clients[$client_id] );
 			}
 		}
 	} );
 };
 
-$worker->onWorkerStop = function($worker) {
+$worker->onWorkerStop = function ( $worker ) {
 	// Clean up resources
 	if ( $worker->blogs_connection ) {
 		$worker->blogs_connection->close();
@@ -145,12 +145,12 @@ $worker->onWorkerStop = function($worker) {
 };
 
 // Client connections
-$worker->onMessage = function(
+$worker->onMessage = function (
 	TcpConnection $connection,
 	Request $request
 ) use ( $worker ) {
 	// Handle OPTIONS preflight request for CORS
-	if ($request->method() === 'OPTIONS') {
+	if ( $request->method() === 'OPTIONS' ) {
 		$connection->send( new Response(
 			204,
 			add_cors_headers()
@@ -161,7 +161,7 @@ $worker->onMessage = function(
 	// SSE client requests
 	if (
 		( $request->path() === '/sse' || $request->path() === '/sse/' )
-		&& $request->header( 'accept') === 'text/event-stream'
+		&& $request->header( 'accept' ) === 'text/event-stream'
 	) {
 		// Send initial SSE response
 		$connection->send( new Response(
@@ -169,21 +169,21 @@ $worker->onMessage = function(
 			add_cors_headers( [
 				'Content-Type' => 'text/event-stream',
 				'Cache-Control' => 'no-cache',
-				'X-Accel-Buffering' => 'no'
+				'X-Accel-Buffering' => 'no',
 			] ),
 			"\r\n"
 		) );
 
 		// Add to the list of clients
-		$worker->clients[ $connection->id ] = $connection;
+		$worker->clients[$connection->id] = $connection;
 
 		// Initial heartbeat to establish the connection
 		$connection->send( ": connected\n\n" );
 
 		// Handle client disconnect
-		$connection->onClose = function() use ($connection, $worker) {
+		$connection->onClose = function () use ( $connection, $worker ) {
 			// Remove client from the list
-			unset($worker->clients[$connection->id]);
+			unset( $worker->clients[$connection->id] );
 		};
 
 		return;
@@ -196,7 +196,7 @@ $worker->onMessage = function(
 			add_cors_headers( [
 				'Content-Type' => 'text/html; charset=utf-8',
 			] ),
-			<<< HTML
+			<<< 'HTML'
 			<html>
 				<head>
 					<title>Blogstream: Real-time blog updates from blo.gs</title>
@@ -346,7 +346,7 @@ $worker->onMessage = function(
 								ping_item.className = 'ping_item';
 								
 								// Only show pretty-printed JSON
-								ping_item.innerHTML = `<div class="json_display">\${JSON.stringify(ping_data, null, 2)}</div>`;
+								ping_item.innerHTML = `<div class="json_display">${JSON.stringify(ping_data, null, 2)}</div>`;
 								
 								ping_list.insertBefore(ping_item, ping_list.firstChild);
 							});
