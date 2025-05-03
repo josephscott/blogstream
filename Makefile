@@ -8,7 +8,7 @@ help:  ## Display this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[0-9a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
 
 .PHONY: all
-all: style analyze ## Do everything
+all: style analyze tests ## Do everything
 
 # ### #
 
@@ -31,15 +31,15 @@ tests: test-server ## Pest tests
 	@echo
 	@echo "--> Tests: Pest"
 	# Always stop the test server, even if tests fail
-	bash -c "./vendor/bin/pest || php app/server.php stop -g"
+	bash -c "./vendor/bin/pest || php server.php stop"
 	@echo
 	@echo "--> Test Server: stopping"
 	@echo
-	php app/server.php stop -g
+	php server.php stop
 
 .PHONY: test-server
 test-server:
 	@echo
 	@echo "--> Test Server: starting"
 	@echo
-	php app/server.php start -d
+	php server.php start -d
