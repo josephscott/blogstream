@@ -49,4 +49,4 @@ server-stop:
 	@echo
 	@echo "--> Blogstream Server: stopping"
 	@echo
-	php server.php stop -d
+	php server.php stop
