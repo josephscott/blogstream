@@ -110,7 +110,7 @@ $worker->onWorkerStart = function ( BlogStreamWorker $worker ) {
 
 	$worker->blogs_connection->onClose = function (
 		AsyncTcpConnection $connection
-	) use ( $worker ) {
+	) {
 		echo "Connection to ping.blo.gs closed, trying to reconnect...\n";
 
 		// Try to reconnect after 5 seconds
