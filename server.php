@@ -99,7 +99,7 @@ $worker->onWorkerStart = function ( BlogStreamWorker $worker ) {
 		AsyncTcpConnection $connection,
 		int $code,
 		string $msg
-	) use ( $worker ) {
+	) {
 		echo "Error connecting to ping.blo.gs: $code $msg\n";
 
 		// Try to reconnect after 5 seconds
