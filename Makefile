@@ -27,19 +27,26 @@ analyze: ## Static analysis, catch problems in code
 	@echo
 
 .PHONY: tests
-tests: test-server ## Pest tests
+tests: server-start ## Pest tests
 	@echo
 	@echo "--> Tests: Pest"
 	# Always stop the test server, even if tests fail
 	bash -c "./vendor/bin/pest || php server.php stop"
 	@echo
-	@echo "--> Test Server: stopping"
+	@echo "--> Blogstream Server: stopping"
 	@echo
 	php server.php stop
 
-.PHONY: test-server
-test-server:
+.PHONY: server-start
+server-start:
 	@echo
-	@echo "--> Test Server: starting"
+	@echo "--> Blogstream Server: starting"
 	@echo
 	php server.php start -d
+
+.PHONY: server-stop
+server-stop:
+	@echo
+	@echo "--> Blogstream Server: stopping"
+	@echo
+	php server.php stop -d
