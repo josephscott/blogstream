@@ -11,13 +11,17 @@ use Workerman\Worker;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$worker = new Worker( 'http://0.0.0.0:39999' );
-$worker->count = 1;
+// Custom Worker class to hold state
+class BlogStreamWorker extends Worker
+{
+	/** @var array<int, \Workerman\Connection\TcpConnection> */
+	public array $clients = [];
+	public ?AsyncTcpConnection $blogs_connection = null;
+	public string $buffer = '';
+}
 
-// Track shared state
-$worker->clients = [];
-$worker->blogs_connection = null;
-$worker->buffer = '';
+$worker = new BlogStreamWorker( 'http://0.0.0.0:39999' );
+$worker->count = 1;
 
 // CORS headers
 function add_cors_headers( array $headers = [] ): array {
@@ -31,7 +35,7 @@ function add_cors_headers( array $headers = [] ): array {
 	return $headers;
 }
 
-$worker->onWorkerStart = function ( Worker $worker ) {
+$worker->onWorkerStart = function ( BlogStreamWorker $worker ) {
 	// Shared connection per worker to ping.blo.gs
 	$worker->blogs_connection = new AsyncTcpConnection( 'tcp://ping.blo.gs:29999' );
 
@@ -40,6 +44,9 @@ $worker->onWorkerStart = function ( Worker $worker ) {
 		AsyncTcpConnection $connection,
 		string $data
 	) use ( $worker ) {
+		// Ensure we are using the correct worker type
+		assert($worker instanceof BlogStreamWorker);
+
 		$worker->buffer .= $data;
 
 		// We need one line at a time
