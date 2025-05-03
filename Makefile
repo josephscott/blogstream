@@ -16,7 +16,7 @@ all: style analyze ## Do everything
 style: ## Fix any style issues
 	@echo
 	@echo "--> Style: php-cs-fixer"
-	vendor/bin/php-cs-fixer fix -v
+	export PHP_CS_FIXER_IGNORE_ENV=1 && vendor/bin/php-cs-fixer fix -v
 	@echo
 
 .PHONY: analyze
