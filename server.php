@@ -12,11 +12,12 @@ use Workerman\Worker;
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Custom Worker class to hold state
-class BlogStreamWorker extends Worker
-{
+class BlogStreamWorker extends Worker {
 	/** @var array<int, \Workerman\Connection\TcpConnection> */
 	public array $clients = [];
+
 	public ?AsyncTcpConnection $blogs_connection = null;
+
 	public string $buffer = '';
 }
 
@@ -44,9 +45,6 @@ $worker->onWorkerStart = function ( BlogStreamWorker $worker ) {
 		AsyncTcpConnection $connection,
 		string $data
 	) use ( $worker ) {
-		// Ensure we are using the correct worker type
-		assert($worker instanceof BlogStreamWorker);
-
 		$worker->buffer .= $data;
 
 		// We need one line at a time
