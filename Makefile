@@ -27,7 +27,7 @@ analyze: ## Static analysis, catch problems in code
 	@echo
 
 .PHONY: tests
-tests: server-start ## Pest tests
+tests: server-stop server-start ## Pest tests
 	@echo
 	@echo "--> Tests: Pest"
 	# Always stop the test server, even if tests fail
