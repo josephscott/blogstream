@@ -5,7 +5,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 const SERVER_URL = 'http://127.0.0.1:39999';
 
-test( 'Server responds to HTTP request', function () {
+test( 'Server responds to HTML home page request', function () {
 	$context = stream_context_create( [
 		'http' => [
 			'timeout' => 1,
@@ -24,6 +24,9 @@ test( 'Server responds to HTTP request', function () {
 	}
 
 	expect( $response )->toBeString();
+	expect( $response )->toContain( '<title>Blogstream: Real-time blog updates from blo.gs</title>' );
+	expect( $response )->toContain( 'Real-time blog updates from' );
+	expect( $response )->toContain( '<button id="connect_button">Connect Stream</button>' );
 } );
 
 test( 'Server responds with correct CORS headers', function () {
