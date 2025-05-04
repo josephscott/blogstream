@@ -29,6 +29,26 @@ test( 'Server responds to HTML home page request', function () {
 	expect( $response )->toContain( '<button id="connect_button">Connect Stream</button>' );
 } );
 
+test( 'server returns 404 for non-existent path', function () {
+	$context = stream_context_create( [
+		'http' => [
+			'timeout' => 1,
+			'ignore_errors' => true,
+		],
+	] );
+
+	$random_path = '/invalid_path_' . rand( 10000, 99999 );
+	$response = file_get_contents( SERVER_URL . $random_path, false, $context );
+	$response_headers = $http_response_header ?? [];
+
+	// Check status code (404 Not Found)
+	$status_line = $response_headers[0] ?? '';
+	expect( strpos( $status_line, '404' ) )->toBeGreaterThan( 0 );
+
+	// Check content
+	expect( $response )->toBe( 'Not found' );
+} );
+
 test( 'Server responds with correct CORS headers', function () {
 	$context = stream_context_create( [
 		'http' => [
