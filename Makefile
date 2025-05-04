@@ -38,14 +38,14 @@ tests: server-stop server-start ## Pest tests
 	php server.php stop
 
 .PHONY: server-start
-server-start:
+server-start: ## Start the blogstream server
 	@echo
 	@echo "--> Blogstream Server: starting"
 	@echo
 	php server.php start -d
 
 .PHONY: server-stop
-server-stop:
+server-stop: ## Stop the blogstream server
 	@echo
 	@echo "--> Blogstream Server: stopping"
 	@echo
