@@ -183,7 +183,7 @@ $worker->onMessage = function (
 		$worker->clients[$connection->id] = $connection;
 
 		// Initial heartbeat to establish the connection
-		$connection->send( ": connected\n\n" );
+		$connection->send( "event: connected\ndata: {}\n\n" );
 
 		// Handle client disconnect
 		$connection->onClose = function () use ( $connection, $worker ) {
