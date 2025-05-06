@@ -157,3 +157,20 @@ test( 'SSE endpoint establishes connection and sends initial data', function () 
 	// Verify we received the connected event
 	expect( $data )->toContain( 'event: connected' );
 } );
+
+test( 'SSE endpoint rejects requests without proper Accept header', function () {
+	$context = stream_context_create( [
+		'http' => [
+			'method' => 'GET',
+			'timeout' => 1,
+			'ignore_errors' => true,
+		],
+	] );
+
+	$response = file_get_contents( SERVER_URL . '/sse', false, $context );
+	$response_headers = $http_response_header ?? [];
+
+	// Should not give a 200 OK with proper SSE headers when Accept header is missing
+	$status_line = $response_headers[0] ?? '';
+	expect( strpos( $status_line, '200' ) )->not->toBeGreaterThan( 0 );
+} );
