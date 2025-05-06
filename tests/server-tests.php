@@ -101,7 +101,7 @@ test( 'SSE endpoint establishes connection and sends initial data', function () 
 	] );
 
 	// Open the stream manually to read up to the first event
-	$fp = @fopen( SERVER_URL . '/sse', 'r', false, $context );
+	$fp = fopen( SERVER_URL . '/sse', 'r', false, $context );
 
 	if ( ! $fp ) {
 		// If we can't connect, check the response headers and fail with a message
@@ -116,15 +116,21 @@ test( 'SSE endpoint establishes connection and sends initial data', function () 
 	$meta_data = stream_get_meta_data( $fp );
 	$headers = $meta_data['wrapper_data'] ?? [];
 
-	// Verify response has SSE headers
-	$has_sse_header = false;
+	// Check for the specific headers we need
+	$found_content_type = false;
+	$found_cache_control = false;
+
 	foreach ( $headers as $header ) {
-		if ( stripos( $header, 'Content-Type: text/event-stream' ) !== false ) {
-			$has_sse_header = true;
-			break;
+		if ( stripos( $header, 'Content-Type:' ) !== false && stripos( $header, 'text/event-stream' ) !== false ) {
+			$found_content_type = true;
+		}
+		if ( stripos( $header, 'Cache-Control:' ) !== false && stripos( $header, 'no-cache' ) !== false ) {
+			$found_cache_control = true;
 		}
 	}
-	expect( $has_sse_header )->toBeTrue( 'Response should include text/event-stream Content-Type' );
+
+	expect( $found_content_type )->toBeTrue( 'Content-Type: text/event-stream header missing' );
+	expect( $found_cache_control )->toBeTrue( 'Cache-Control: no-cache header missing' );
 
 	// Read some data with a timeout
 	$data = '';
