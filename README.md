@@ -8,4 +8,12 @@ Start the server: `php server.php start -d`
 
 View the JSON SSE: `curl -H 'Accept: text/event-stream' -N http://localhost:39999/sse`
 
-Demo page showing the stram of pings at http://0.0.0.0:39999/
+Demo page showing the stream of pings at http://0.0.0.0:39999/
+
+## Testing
+
+Run tests with Pest:
+
+```bash
+make tests
+```
