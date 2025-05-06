@@ -86,3 +86,68 @@ test( 'Server responds with correct CORS headers', function () {
 	expect( $headers )->toHaveKey( 'Access-Control-Allow-Headers' );
 	expect( $headers )->toHaveKey( 'Access-Control-Max-Age' );
 } );
+
+test( 'SSE endpoint establishes connection and sends initial data', function () {
+	// Use a 1 second timeout
+	$context = stream_context_create( [
+		'http' => [
+			'method' => 'GET',
+			'timeout' => 1,
+			'header' => [
+				'Accept: text/event-stream',
+			],
+			'ignore_errors' => true,
+		],
+	] );
+
+	// Open the stream manually to read up to the first event
+	$fp = @fopen( SERVER_URL . '/sse', 'r', false, $context );
+
+	if ( ! $fp ) {
+		// If we can't connect, check the response headers and fail with a message
+		$error = error_get_last();
+		fail( 'Failed to connect to SSE endpoint: ' . ( $error['message'] ?? 'Unknown error' ) );
+	}
+
+	// Set non-blocking mode so we can check for data without waiting
+	stream_set_blocking( $fp, false );
+
+	// Read the headers
+	$meta_data = stream_get_meta_data( $fp );
+	$headers = $meta_data['wrapper_data'] ?? [];
+
+	// Verify response has SSE headers
+	$has_sse_header = false;
+	foreach ( $headers as $header ) {
+		if ( stripos( $header, 'Content-Type: text/event-stream' ) !== false ) {
+			$has_sse_header = true;
+			break;
+		}
+	}
+	expect( $has_sse_header )->toBeTrue( 'Response should include text/event-stream Content-Type' );
+
+	// Read some data with a timeout
+	$data = '';
+	$start_time = microtime( true );
+
+	// Try to read for at most 1 second
+	while ( microtime( true ) - $start_time < 1 ) {
+		$chunk = fread( $fp, 4096 );
+		if ( $chunk ) {
+			$data .= $chunk;
+
+			// If we received the connected event, we can stop
+			if ( strpos( $data, 'event: connected' ) !== false ) {
+				break;
+			}
+		}
+		// Short sleep to prevent CPU spinning
+		usleep( 50000 ); // 50ms
+	}
+
+	// Close connection
+	fclose( $fp );
+
+	// Verify we received the connected event
+	expect( $data )->toContain( 'event: connected' );
+} );
