@@ -20,7 +20,9 @@ Start the server: `make server-start`
 
 View the JSON SSE: `curl -H 'Accept: text/event-stream' -N http://localhost:39999/sse`
 
-Demo page showing the stream of pings at http://localhost:39999/
+Visit the demo page showing the stream of pings at http://localhost:39999/
+
+![blogstream](blogstream.png)
 
 ## Testing
 
