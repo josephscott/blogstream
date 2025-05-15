@@ -7,7 +7,7 @@ This takes the XML blog ping flow from <a href="http://blo.gs/">http://blo.gs/</
 ## Installation
 
 ```bash
-$ git clone https://github.com/josephscott/blogstream
+$ git clone https://github.com/josephscott/blogstream.git
 $ composer install
 $ make server-start
 ```
