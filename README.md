@@ -12,6 +12,8 @@ $ composer install
 $ make server-start
 ```
 
+You can shudown the server with `make server-stop`.
+
 ## Usage
 
 Start the server: `make server-start`
