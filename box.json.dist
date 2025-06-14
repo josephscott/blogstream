@@ -1,0 +1,4 @@
+{
+	"main": "server.php",
+	"output": "bin/blogstream.phar"
+}
