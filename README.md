@@ -4,6 +4,8 @@
 
 This takes the XML blog ping flow from <a href="http://blo.gs/">http://blo.gs/</a> and provides a JSON HTTP Server-Sent Events URL.
 
+You can read more about it at <a href="https://josephscott.org/blog/2025/blogstream-blo-gs-updates-via-server-sent-events/">https://josephscott.org/blog/2025/blogstream-blo-gs-updates-via-server-sent-events/</a>.
+
 ## Installation
 
 ```bash
