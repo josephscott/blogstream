@@ -57,3 +57,13 @@ compile: ## Compile the Phar file as bin/blogstream.phar
 	@echo "--> Compiling bin/blogstream.phar"
 	@echo
 	box compile
+
+.PHONY: binary-macos-aarch64
+binary-macos-aarch64: ## Generate a macos sigle file binary for Apple Silicon
+	@echo
+	@echo "--> Generating bin/blogstream-macos-aarch64"
+	@echo
+	curl -OL https://dl.static-php.dev/static-php-cli/bulk/php-8.4.8-micro-macos-aarch64.tar.gz
+	tar -xzvf php-8.4.8-micro-macos-aarch64.tar.gz
+	cat micro.sfx bin/blogstream.phar > bin/blogstream-macos-aarch64
+	chmod 700 bin/blogstream-macos-aarch64
